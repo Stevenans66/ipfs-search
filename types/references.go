@@ -58,14 +58,3 @@ type ReferencedResource struct {
 	ResourceType
 	Reference
 }
-
-// GatewayPath returns the path for requesting a resource from an IPFS gateway.
-// If a reference is available, it is used to generate the filename to facilitate content
-// type detection (e.g. /ipfs/<parent_hash>/my_file.jpg instead of /ipfs/<file_hash>/).
-func (r ReferencedResource) GatewayPath() string {
-	if ref := r.Reference; ref.Name != "" {
-		return fmt.Sprintf("/ipfs/%s/%s", ref.Parent.ID, url.PathEscape(ref.Name))
-	}
-
-	return fmt.Sprintf("/ipfs/%s", r.ID)
-}

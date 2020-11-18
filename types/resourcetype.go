@@ -6,6 +6,8 @@ type ResourceType uint8
 const (
 	// UndefinedType is for resources for which the type is as of yet undefined.
 	UndefinedType = iota
+	// UnsupportedType represents an as-of-yet unsupported type.
+	UnsupportedType
 	// FileType is a regular file.
 	FileType
 	// DirectoryType is a directory.
