@@ -29,8 +29,8 @@ func (i *IPFS) Stat(ctx context.Context, r *t.Resource) (*t.ReferencedResource, 
 	}
 
 	return &t.ReferencedResource{
-		r,
-		&t.Reference{
+		Resource: r,
+		Reference: &t.Reference{
 			Type: typeFromString(result.Type),
 			Size: uint64(result.Size),
 		},

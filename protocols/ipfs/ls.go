@@ -79,17 +79,19 @@ func (i *IPFS) Ls(ctx context.Context, r *t.ReferencedResource, out chan<- t.Ref
 		}
 
 		// TODO: Consider using an error channel here; don't abort on individual decoding errors?
-		// Alternativel: just propagate an InvalidType out to be ignored later.
+		// Alternativel: propagate an InvalidType object instead and log the error without propagating.
+		// Needs real world testing. How many directories with invalid entries are there,
+		// and should we care about them?
 		if err != nil {
 			return err
 		}
 
 		refR := t.ReferencedResource{
-			&t.Resource{
+			Resource: &t.Resource{
 				Protocol: t.IPFSProtocol,
 				ID:       link.Hash,
 			},
-			&t.Reference{
+			Reference: &t.Reference{
 				Parent: r.Resource,
 				Name:   link.Name,
 				Type:   typeFromPb(link.Type),
