@@ -30,25 +30,6 @@ func (r *Reference) String() string {
 // References represents a list of references
 type References []Reference
 
-// Contains returns true of a given reference exists, false when it doesn't
-func (refs References) Contains(newRef *Reference) bool {
-	newP := newRef.Parent
-
-	for _, r := range refs {
-		oldP := r.Parent
-
-		if oldP.Protocol != newP.Protocol {
-			panic("unmatching protocols in reference")
-		}
-
-		if newP.ID == oldP.ID {
-			return true
-		}
-	}
-
-	return false
-}
-
 // ReferencedResource is a resource with zero or more references to it.
 type ReferencedResource struct {
 	*Resource
