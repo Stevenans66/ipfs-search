@@ -1,14 +1,11 @@
 package types
 
-import (
-	"fmt"
-	"net/url"
-)
-
 // Reference to indexed item
 type Reference struct {
 	Parent *Resource
 	Name   string
+	Type   ResourceType
+	Size   uint64
 }
 
 // TODO: (Un)marshall References such that they can be serialized to Elasticsearch
@@ -55,6 +52,5 @@ func (refs References) Contains(newRef *Reference) bool {
 // ReferencedResource is a resource with zero or more references to it.
 type ReferencedResource struct {
 	*Resource
-	ResourceType
-	Reference
+	*Reference
 }

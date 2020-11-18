@@ -2,6 +2,7 @@ package ipfs
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 
 	ipfs "github.com/ipfs/go-ipfs-api"
@@ -23,7 +24,7 @@ type IPFS struct {
 }
 
 // absolutePath returns the absolute (CID-only) path for a resource.
-func absolutePath(*t.ReferencedResource) string {
+func absolutePath(r *t.Resource) string {
 	return fmt.Sprintf("/ipfs/%s", r.ID)
 }
 
@@ -35,7 +36,7 @@ func namedPath(r *t.ReferencedResource) string {
 		return fmt.Sprintf("/ipfs/%s/%s", ref.Parent.ID, url.PathEscape(ref.Name))
 	}
 
-	return absolutePath(r)
+	return absolutePath(r.Resource)
 }
 
 // GatewayURL returns the URL to request a resource from the gateway.
@@ -48,13 +49,7 @@ func (i *IPFS) GatewayURL(r *t.ReferencedResource) string {
 		panic(fmt.Sprintf("error generating GatewayURL: %v", err))
 	}
 
-	return url
-}
-
-type statResult struct {
-	Hash string
-	Type string
-	Size int64 // unixfs size
+	return url.String()
 }
 
 func typeFromPb(pbType unixfs_pb.Data_DataType) t.ResourceType {
@@ -68,8 +63,8 @@ func typeFromPb(pbType unixfs_pb.Data_DataType) t.ResourceType {
 	}
 }
 
-func typeFromString(t string) t.ResourceType {
-	switch t {
+func typeFromString(strType string) t.ResourceType {
+	switch strType {
 	case "file":
 		return t.FileType
 	case "directory":
@@ -79,53 +74,25 @@ func typeFromString(t string) t.ResourceType {
 	}
 }
 
-// Stat returns a ReferencedResource with Type and Size populated.
-func (i *IPFS) Stat(ctx context.Context, r *t.Resource) (*t.ReferencedResource, error) {
-	ctx, cancel := context.WithDeadline(ctx, i.config.StatTimeout)
-	defer cancel()
-
-	const cmd = "files/stat"
-
-	path := absolutePath(r)
-	req := c.Request(cmd, path)
-
-	if err := req.Exec(ctx, &statResult); err != nil {
-		return nil, err
-	}
-
-	return &t.ReferencedResource{
-		Type: typeFromString(stat.Type),
-		Size: uint64(stat.Size),
-	}
-}
-
-// Ls returns a channel with ReferencedResource's with Type and Size populated.
-func (i *IPFS) Ls(context.Context, *t.Resource, chan<- t.ReferencedResource) error {
-
-}
-
 // New returns a new IPFS protocol.
-func New(config *Config, client *http.Client, instr *instr.Instrumentation) {
-	i := &IPFS{
-		config,
-		instr,
-	}
-
+func New(config *Config, client *http.Client, instr *instr.Instrumentation) *IPFS {
 	// Initialize gatewayURL
 	gatewayURL, err := url.Parse(config.IPFSGatewayURL)
 	if err != nil {
 		panic(fmt.Sprintf("could not parse IPFS Gateway URL, error: %v", err))
 	}
 
-	if !i.gatewayURL.IsAbs() {
-		panic(fmt.Sprintf("gateway URL is not absolute: %s", i.gatewayURL))
+	if !gatewayURL.IsAbs() {
+		panic(fmt.Sprintf("gateway URL is not absolute: %s", gatewayURL))
 	}
 
-	// Store gatewayURL for later reference
-	i.gatewayURL = gatewayURL
-
 	// Create IPFS shell
-	i.shell = ipfs.NewShellWithClient(config.IPFSAPIURL, client)
+	shell := ipfs.NewShellWithClient(config.IPFSAPIURL, client)
 
-	return i
+	return &IPFS{
+		config,
+		gatewayURL,
+		shell,
+		instr,
+	}
 }

@@ -14,19 +14,21 @@ import (
 
 	"github.com/ipfs-search/ipfs-search/extractor"
 	"github.com/ipfs-search/ipfs-search/instr"
+	"github.com/ipfs-search/ipfs-search/protocols"
 	t "github.com/ipfs-search/ipfs-search/types"
 )
 
 // Extractor extracts metadata using the ipfs-tika server.
 type Extractor struct {
-	config *Config
-	client *http.Client
+	config   *Config
+	client   *http.Client
+	protocol protocols.Protocol
 
 	*instr.Instrumentation
 }
 
 func (e *Extractor) get(ctx context.Context, url string) (resp *http.Response, err error) {
-	ctx, cancel := context.WithDeadline(ctx, e.config.RequestTimeout)
+	ctx, cancel := context.WithTimeout(ctx, e.config.RequestTimeout)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
@@ -71,13 +73,13 @@ func (e *Extractor) retryingGet(ctx context.Context, url string) (resp *http.Res
 	}
 }
 
-func (e *Extractor) getExtractURL(r t.ReferencedResource) string {
-	return e.config.TikaServerURL + r.GatewayPath()
+func (e *Extractor) getExtractURL(r *t.ReferencedResource) string {
+	return e.protocol.GatewayURL(r)
 }
 
 // Extract metadata from a (potentially) referenced resource, updating
 // Metadata or returning an error.
-func (e *Extractor) Extract(ctx context.Context, r t.ReferencedResource, m t.Metadata) error {
+func (e *Extractor) Extract(ctx context.Context, r *t.ReferencedResource, m t.Metadata) error {
 	ctx, span := e.Tracer.Start(ctx, "extractor.tika.Extract",
 		trace.WithAttributes(label.String("cid", r.ID)),
 	)
@@ -130,9 +132,11 @@ func (e *Extractor) Extract(ctx context.Context, r t.ReferencedResource, m t.Met
 }
 
 // New returns a new Tika extractor.
-func New(config *Config, client *http.Client, instr *instr.Instrumentation) extractor.Extractor {
+func New(config *Config, client *http.Client, protocol protocols.Protocol, instr *instr.Instrumentation) extractor.Extractor {
 	return &Extractor{
 		config,
+		client,
+		protocol,
 		instr,
 	}
 }
