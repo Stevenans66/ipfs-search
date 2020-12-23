@@ -4,12 +4,11 @@ import (
 	"context"
 	"github.com/ipfs-search/ipfs-search/config"
 	"github.com/ipfs-search/ipfs-search/instr"
-	"github.com/ipfs-search/ipfs-search/worker"
-	"golang.org/x/sync/errgroup"
+	// "github.com/ipfs-search/ipfs-search/worker"
+	// "golang.org/x/sync/errgroup"
 	"log"
-
-	"go.opentelemetry.io/otel/api/trace"
-	"go.opentelemetry.io/otel/codes"
+	// "go.opentelemetry.io/otel/api/trace"
+	// "go.opentelemetry.io/otel/codes"
 )
 
 // Crawl configures and initializes crawling
@@ -26,6 +25,8 @@ func Crawl(ctx context.Context, cfg *config.Config) error {
 	ctx, span := tracer.Start(ctx, "commands.Crawl")
 	defer span.End()
 
+	// TODO: Rewrite me!
+	return nil
 }
 
 // 	errc := make(chan error, 1)
