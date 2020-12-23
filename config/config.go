@@ -7,16 +7,10 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
-	"time"
 )
 
-type IPFS struct {
-	IpfsAPI     string        `yaml:"api_url" env:"IPFS_API_URL"`
-	IpfsTimeout time.Duration `yaml:"timeout"`
-}
-
 type ElasticSearch struct {
-	ElasticSearchURL string `yaml:"url" env:"ELASTICSEARCH_URL"`
+	URL string `yaml:"url" env:"ELASTICSEARCH_URL"`
 }
 
 type AMQP struct {

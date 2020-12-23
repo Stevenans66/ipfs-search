@@ -21,7 +21,7 @@ func AddHash(ctx context.Context, cfg *config.Config, hash string) error {
 	i := instr.New()
 
 	f := amqp.PublisherFactory{
-		AMQPURL:         cfg.AMQP.AMQPURL,
+		AMQPURL:         cfg.AMQP.URL,
 		Queue:           "hashes",
 		Instrumentation: i,
 	}
