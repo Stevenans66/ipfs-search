@@ -20,7 +20,7 @@ type ElasticSearch struct {
 }
 
 type AMQP struct {
-	AMQPURL string `yaml:"url" env:"AMQP_URL"`
+	URL string `yaml:"url" env:"AMQP_URL"`
 }
 
 // Config contains the configuration for commands.
@@ -32,6 +32,7 @@ type Config struct {
 	Sniffer       `yaml:"sniffer"`
 	Indexes       `yaml:"indexes"`
 	Extractor     `yaml:"extractor"`
+	Queues        `yaml:"queues"`
 }
 
 // String renders config as YAML

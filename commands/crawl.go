@@ -2,14 +2,58 @@ package commands
 
 import (
 	"context"
+
 	"github.com/ipfs-search/ipfs-search/config"
+	"github.com/ipfs-search/ipfs-search/crawler"
 	"github.com/ipfs-search/ipfs-search/instr"
+	"github.com/ipfs-search/ipfs-search/protocol/ipfs"
+	"github.com/ipfs-search/ipfs-search/extractor/tika"
+	"github.com/ipfs-search/ipfs-search/queue/amqp"
+	"github.com/ipfs-search/ipfs-search/index/elasticsearch"
+
+
 	// "github.com/ipfs-search/ipfs-search/worker"
 	// "golang.org/x/sync/errgroup"
 	"log"
 	// "go.opentelemetry.io/otel/api/trace"
 	// "go.opentelemetry.io/otel/codes"
 )
+
+func getIndexes(ctx context.Context, config.Indexes) (crawler.Indexes, err) {
+	indexes := crawler.Indexes{
+	Files:       elasticsearch.New(),
+	Directories:       elasticsearch.New(),
+	Invalids:       elasticsearch.New(),
+		}
+}
+
+func getQueues(ctx context.Context, config.Queues) (*crawler.Queues, err) {
+	amqpConnection, err = amqp.NewConnection(ctx, cfg.AMQP.URL, instrumentation)
+	if err != nil {
+		return nil, err
+	}
+
+	fq, err := amqpConnection.NewChannelQueue(ctx, cfg.Queues.Files.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	dq, err := amqpConnection.NewChannelQueue(ctx, cfg.Queues.Directories.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	hq, err := amqpConnection.NewChannelQueue(ctx, cfg.Queues.Hashes.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &crawler.Queues{
+		Files: fq,
+		Directories: dq,
+		Hashes: hq,
+	}
+}
 
 // Crawl configures and initializes crawling
 func Crawl(ctx context.Context, cfg *config.Config) error {
@@ -25,6 +69,29 @@ func Crawl(ctx context.Context, cfg *config.Config) error {
 	ctx, span := tracer.Start(ctx, "commands.Crawl")
 	defer span.End()
 
+	queues := getQueues(ctx, cfg.Queues)
+	indexes := getIndexes(ctx, cfg.Indexes)
+
+	protocol := ipfs.New(
+
+	)
+
+	extractor := tika.New(
+
+	)
+
+	crawler := crawler.New(cfg.CrawlerConfig(), indexes, queues, protocol, extractor)
+
+
+func New(config *Config, indexes Indexes, queues Queues, protocol protocol.Protocol, extractor extractor.Extractor) *Crawler {
+	return &Crawler{
+		config,
+		indexes,
+		queues,
+		protocol,
+		extractor,
+	}
+}
 	// TODO: Rewrite me!
 	return nil
 }
