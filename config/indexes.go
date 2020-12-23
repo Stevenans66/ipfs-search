@@ -7,8 +7,8 @@ type Index struct {
 // Indexes represents the various indexes we're using
 type Indexes struct {
     Files       Index `yaml:"files"`
-    Directories Index `yaml:"files"`
-    Invalids    Index `yaml:"invalids`
+    Directories Index `yaml:"directories"`
+    Invalids    Index `yaml:"invalids"`
 }
 
 // IndexesDefaults returns the default indexes.

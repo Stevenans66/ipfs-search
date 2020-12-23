@@ -6,6 +6,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -22,11 +23,13 @@ type Config struct {
 	IPFS          `yaml:"ipfs"`
 	ElasticSearch `yaml:"elasticsearch"`
 	AMQP          `yaml:"amqp"`
-	Crawler       `yaml:"crawler"`
-	Sniffer       `yaml:"sniffer"`
-	Indexes       `yaml:"indexes"`
-	Extractor     `yaml:"extractor"`
-	Queues        `yaml:"queues"`
+	Tika          `yaml:"extractor"`
+
+	Crawler `yaml:"crawler"`
+	Sniffer `yaml:"sniffer"`
+	Indexes `yaml:"indexes"`
+	Queues  `yaml:"queues"`
+	Workers `yaml:"workers"`
 }
 
 // String renders config as YAML
@@ -76,9 +79,14 @@ func (c *Config) Check() error {
 	return nil
 }
 
+// Marshall returns the config serialized to bytes[]
+func (c *Config) Marshall() ([]byte, error) {
+	return yaml.Marshal(c)
+}
+
 // Write writes configuration to file as YAML.
 func (c *Config) Write(configFile string) error {
-	bytes, err := yaml.Marshal(c)
+	bytes, err := c.Marshall()
 	if err != nil {
 		return err
 	}
@@ -89,6 +97,18 @@ func (c *Config) Write(configFile string) error {
 	}
 
 	return nil
+}
+
+// Dump writes configuration to standard output.
+func (c *Config) Dump() error {
+	bytes, err := c.Marshall()
+	if err != nil {
+		return err
+	}
+
+	_, err = os.Stdout.Write(bytes)
+
+	return err
 }
 
 // Get configuration from defaults, optional configuration file, or environment.

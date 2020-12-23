@@ -10,10 +10,11 @@ func Default() *Config {
         AMQP{
             URL: "amqp://guest:guest@localhost:5672/",
         },
+        TikaDefaults(),
         CrawlerDefaults(),
         SnifferDefaults(),
         IndexesDefaults(),
-        ExtractorDefaults(),
         QueuesDefaults(),
+        WorkersDefaults(),
     }
 }
