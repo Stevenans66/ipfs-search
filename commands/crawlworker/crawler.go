@@ -176,6 +176,21 @@ func (w *Worker) startWorkers(ctx context.Context, c *crawler.Crawler, deliverie
 	}
 }
 
+// TODO: This would prevent us from passing crawlers around and it would make Start not return errors.
+// func (w *Worker) Initialize() error {
+// 	w.crawler, err := w.getCrawler(ctx)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	w.consumeChans, err := w.getConsumeChans(ctx)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
+
 func (w *Worker) Start(ctx context.Context) error {
 	c, err := w.getCrawler(ctx)
 	if err != nil {
